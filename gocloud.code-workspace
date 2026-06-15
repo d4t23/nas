@@ -1,0 +1,14 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/storage/uploads": true,
+      "**/.git": true
+    },
+    "php.validate.executablePath": "php"
+  }
+}

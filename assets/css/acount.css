@@ -1,0 +1,137 @@
+ .connected-wrapper {
+     padding: 20px;
+ }
+
+ .connected-header {
+     margin-bottom: 30px;
+ }
+
+ .connected-header h2 {
+     font-size: 28px;
+     font-weight: 700;
+     margin-bottom: 10px;
+     color: #111827;
+ }
+
+ .connected-header p {
+     color: #6B7280;
+     margin: 0;
+ }
+
+ .provider-card {
+     background: #fff;
+     border-radius: 22px;
+     padding: 24px;
+     height: 100%;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+     transition: .3s ease;
+     border: 1px solid #F1F5F9;
+     display: flex;
+     flex-direction: column;
+     justify-content: space-between;
+ }
+
+ .provider-card:hover {
+     transform: translateY(-5px);
+     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+ }
+
+ .provider-top {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 25px;
+ }
+
+ .provider-logo {
+     width: 70px;
+     height: 70px;
+     border-radius: 20px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+ }
+
+ .provider-logo img {
+     width: 42px;
+     height: 42px;
+     object-fit: contain;
+ }
+
+ .status {
+     font-size: 13px;
+     font-weight: 600;
+     padding: 7px 14px;
+     border-radius: 50px;
+ }
+
+ .connected {
+     background: #DCFCE7;
+     color: #16A34A;
+ }
+
+ .disconnected {
+     background: #F3F4F6;
+     color: #6B7280;
+ }
+
+ .provider-body h5 {
+     font-size: 22px;
+     font-weight: 700;
+     margin-bottom: 10px;
+     color: #111827;
+ }
+
+ .provider-body p {
+     color: #6B7280;
+     line-height: 1.7;
+     font-size: 15px;
+ }
+
+ .provider-footer {
+     margin-top: 25px;
+ }
+
+ .connect-btn,
+ .disconnect-btn {
+     width: 100%;
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     text-decoration: none;
+     height: 50px;
+     border-radius: 14px;
+     font-weight: 600;
+     transition: .3s ease;
+ }
+
+ .connect-btn {
+     background: #111827;
+     color: white;
+ }
+
+ .connect-btn:hover {
+     background: #000;
+     color: white;
+ }
+
+ .disconnect-btn {
+     background: #FEF2F2;
+     color: #DC2626;
+ }
+
+ .disconnect-btn:hover {
+     background: #DC2626;
+     color: white;
+ }
+
+ @media(max-width:768px) {
+
+     .provider-card {
+         padding: 20px;
+     }
+
+     .provider-body h5 {
+         font-size: 20px;
+     }
+ }
