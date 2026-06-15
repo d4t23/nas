@@ -35,13 +35,14 @@ $sharedFiles = $shareManager->getUserShares($user['id']);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/sidebar-modern.css">
 </head>
 
 <body class="dashboard-theme">
     <div class="dashboard-card">
-        <?php include __DIR__ . '/../components/sidebar.php'; ?>
+        <?php include __DIR__ . '/../components/sidebar-modern.php'; ?>
 
-        <div class="main-panel p-4 dashboard-main">
+        <div class="dashboard-card" style="margin-left: var(--sb-expanded-width); transition: margin-left var(--sb-transition, 0.35s);"> p-4 dashboard-main">
             <?php include __DIR__ . '/../components/navbar.php'; ?>
 
             <?php if ($message): ?>

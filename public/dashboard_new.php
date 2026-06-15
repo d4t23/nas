@@ -219,14 +219,36 @@ if ($page === 'shared') {
         rel='stylesheet'>
 
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/sidebar-modern.css">
 
 </head>
 
 <body class="dashboard-theme">
 
-    <div class="dashboard-card">
+    <?php include __DIR__ . '/../components/sidebar-modern.php'; ?>
 
-        <?php include __DIR__ . '/../components/sidebar.php'; ?>
+    <div class="dashboard-card" style="margin-left: var(--sb-expanded-width); transition: margin-left var(--sb-transition, 0.35s);">
+        <style>
+            body.dark-mode .dashboard-card {
+                background: #1f2937;
+            }
+            
+            @media (max-width: 991px) {
+                .dashboard-card {
+                    margin-left: 0 !important;
+                }
+            }
+            
+            .sidebar.collapsed ~ .dashboard-card {
+                margin-left: var(--sb-collapsed-width);
+            }
+            
+            @media (max-width: 768px) {
+                .sidebar.collapsed ~ .dashboard-card {
+                    margin-left: 0;
+                }
+            }
+        </style>
 
         <div class="main-panel p-4 dashboard-main">
 
@@ -249,7 +271,7 @@ if ($page === 'shared') {
                 <div class="col-lg-8">
                     <div class="dashboard-access-row d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 mb-4">
                         <div>
-                            <h4 class="mb-1">Access your files and folder</h4>
+                            <h4 class="mb-1 dashboard-access-title">Access your files and folders</h4>
                             <p class="text-muted mb-0">Quickly open your documents, media and shared items.</p>
                         </div>
                     </div>
@@ -288,8 +310,6 @@ if ($page === 'shared') {
                         </div>
                     <?php endif; ?>
                 </div>
-
-
 
             </div>
 

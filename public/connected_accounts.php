@@ -110,8 +110,9 @@ function providerCard(string $provider, array $connected)
 ?>
 
 <?php include __DIR__ . '/../components/navbar.php'; ?>
-<?php include __DIR__ . '/../components/sidebar.php'; ?>
-<link rel="stylesheet" href="../assets/css/acount.css">
+<?php include __DIR__ . '/../components/sidebar-modern.php'; ?>
+<link rel=\"stylesheet\" href=\"../assets/css/acount.css\">
+<link rel=\"stylesheet\" href=\"../assets/css/sidebar-modern.css\">
 <main class="main-wrapper">
 
     <div class="top-navbar-space"></div>

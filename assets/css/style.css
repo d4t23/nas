@@ -992,16 +992,25 @@ body.dark-mode .btn-outline-dark {
 
 body.dashboard-theme {
     min-height: 100vh;
-    padding: 30px;
+    padding: 0;
+    margin: 0;
+    background: #2563eb;
+    overflow: hidden;
+}
+
+body.dark-mode.dashboard-theme {
+    background: #111827;
 }
 
 .dashboard-card {
     background: #fff;
-    border-radius: 35px;
+    border-radius: 0;
     overflow: hidden;
-    min-height: 90vh;
+    min-height: 100vh;
     display: flex;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    flex-direction: column;
+    box-shadow: none;
+    height: 100vh;
 }
 
 .sidebar-panel {
@@ -1061,6 +1070,9 @@ body.dashboard-theme {
     flex: 1;
     padding: 30px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
 /* Fixed full-height dashboard layout */
@@ -1069,25 +1081,14 @@ body {
     height: 100%;
 }
 
-.dashboard-card {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-}
-
-.sidebar-panel {
-    flex: 0 0 280px;
-    max-width: 280px;
-    height: 100vh;
-    overflow: auto;
-}
-
-.main-panel {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: auto;
+/* Adjust main panel navbar */
+.main-panel .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: inherit;
+    margin: -30px -30px 0 -30px;
+    padding: 0;
 }
 
 /* Make navbar sticky inside main-panel */
@@ -1487,15 +1488,23 @@ a {
         width: 260px;
         height: 100%;
         z-index: 2000;
-        background: #fff;
-        background: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.96);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border-radius: 0 0 0 24px;
         transition: transform 0.3s ease-in-out;
+        box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
     }
 
     .sidebar.show {
+        transform: translateX(0);
+    }
+
+    .sidebar.hide-on-mobile {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.hide-on-mobile.show {
         transform: translateX(0);
     }
 
@@ -1643,6 +1652,9 @@ a {
 .navbar .form-control::placeholder {
     color: #6b7280;
     animation: blinkCursor 1s infinite;
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
 }
 
 @keyframes blinkCursor {
@@ -1720,4 +1732,127 @@ a {
         margin: 20px;
     }
 
+}
+
+/* ========================================
+   MODERN SIDEBAR RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+    .dashboard-card {
+        margin-left: var(--sb-expanded-width, 280px) !important;
+    }
+
+    .sidebar.collapsed ~ .dashboard-card {
+        margin-left: var(--sb-collapsed-width, 80px) !important;
+    }
+
+    .main-panel {
+        padding: 1.5rem;
+    }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+    .dashboard-card {
+        margin-left: 0 !important;
+    }
+
+    .sidebar.collapsed ~ .dashboard-card {
+        margin-left: 0 !important;
+    }
+
+    .main-panel {
+        padding: 1rem;
+    }
+
+    .main-panel .navbar {
+        margin: -1rem -1rem 0 -1rem;
+    }
+
+    .dashboard-main {
+        padding: 1rem;
+    }
+
+    .sidebar-user {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .sidebar-user-profile {
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Small Mobile (< 480px) */
+@media (max-width: 480px) {
+    .main-panel {
+        padding: 0.75rem;
+    }
+
+    .main-panel .navbar {
+        margin: -0.75rem -0.75rem 0 -0.75rem;
+    }
+
+    .dashboard-main {
+        padding: 0.75rem;
+    }
+
+    .sidebar-header {
+        min-height: 70px;
+        padding: 1rem 0.75rem;
+    }
+
+    .sidebar-link {
+        padding: 0.65rem 0.85rem;
+    }
+}
+
+/* Dashboard header and recommendations styling */
+.dashboard-access-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+}
+
+body.dark-mode .dashboard-access-title {
+    color: #f3f4f6;
+}
+
+.header-search .form-control {
+    border-radius: 999px;
+    padding: 0.5rem 0.75rem;
+}
+
+.recommendations-wrapper {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.recommendation-card {
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), #fff);
+    min-height: 68px;
+}
+
+body.dark-mode .recommendation-card {
+    background: linear-gradient(180deg, rgba(17,24,39,0.6), rgba(17,24,39,0.4));
+    color: #e6eefc;
+}
+
+.recommendation-card strong {
+    display: block;
+    font-size: 0.95rem;
+}
+
+.recommendation-card .small {
+    color: #6b7280;
+}
+
+@media (max-width: 576px) {
+    .recommendations-wrapper {
+        flex-direction: column;
+    }
 }

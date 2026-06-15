@@ -623,24 +623,97 @@ setTimeout(() => {
 document.addEventListener('DOMContentLoaded', function () {
     const sidebarToggleBtn = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
+    const searchInput = document.querySelector('.navbar .form-control[type="search"]');
 
-    sidebarToggleBtn?.addEventListener('click', () => {
+    sidebarToggleBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         sidebar?.classList.toggle('show');
     });
 
     // Close sidebar when clicking outside on mobile
     document.addEventListener('click', (e) => {
-        if (!sidebar) return;
-        if (!sidebar.classList.contains('show')) return;
+        if (!sidebar || !sidebar.classList.contains('show')) return;
         if (!sidebar.contains(e.target) && !e.target.closest('#sidebarToggle')) {
             sidebar.classList.remove('show');
         }
     });
 
-    // Make dropdown uploads act smoothly
-    const uploadDropdown = document.getElementById('uploadDropdownBtn');
-    document.addEventListener('click', (e) => {
-        if (e.target.closest('#uploadDropdownBtn')) return;
-        // close bootstrap dropdowns by triggering body click
+    // keep the search icon inside the input-group (modern UI)
+
+    // Restore animated placeholder text for the search input
+    const searchPhrases = [
+        'Search files, folders...',
+        'Find documents fast...',
+        'Search your GoCloud drive...'
+    ];
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let typingTimeout;
+
+    function typeSearchPlaceholder() {
+        if (!searchInput || document.activeElement === searchInput || searchInput.value) return;
+        const phrase = searchPhrases[phraseIndex];
+
+        if (charIndex <= phrase.length) {
+            searchInput.placeholder = phrase.slice(0, charIndex);
+            charIndex += 1;
+            typingTimeout = window.setTimeout(typeSearchPlaceholder, 80);
+            return;
+        }
+
+        window.setTimeout(() => {
+            charIndex = 0;
+            phraseIndex = (phraseIndex + 1) % searchPhrases.length;
+            typeSearchPlaceholder();
+        }, 1500);
+    }
+
+    function resetSearchPlaceholder() {
+        if (!searchInput) return;
+        clearTimeout(typingTimeout);
+        if (searchInput.value) {
+            searchInput.placeholder = '';
+            return;
+        }
+        charIndex = 0;
+        typingTimeout = window.setTimeout(typeSearchPlaceholder, 300);
+    }
+
+    if (searchInput) {
+        searchInput.placeholder = '';
+        typeSearchPlaceholder();
+        searchInput.addEventListener('focus', () => {
+            clearTimeout(typingTimeout);
+            if (!searchInput.value) {
+                searchInput.placeholder = searchPhrases[phraseIndex].slice(0, Math.max(1, charIndex));
+            }
+        });
+        searchInput.addEventListener('blur', resetSearchPlaceholder);
+        searchInput.addEventListener('input', () => {
+            if (searchInput.value) {
+                searchInput.placeholder = '';
+                clearTimeout(typingTimeout);
+            } else {
+                resetSearchPlaceholder();
+            }
+        });
+    }
+
+    // Upload dropdown file selector handling
+    document.addEventListener('click', function (e) {
+        const label = e.target.closest('label.dropdown-item');
+        if (!label) return;
+
+        const fileInput = document.getElementById('fileInput');
+        const folderInput = document.getElementById('folderInput');
+
+        if (label.textContent.trim().startsWith('Upload Files')) {
+            fileInput?.click();
+        }
+
+        if (label.textContent.trim().startsWith('Upload Folder')) {
+            folderInput?.click();
+        }
     });
 });

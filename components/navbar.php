@@ -6,13 +6,10 @@ endif; ?>
             <i class='bx bx-menu fs-4'></i>
         </button>
 
-        <a class="navbar-brand d-flex align-items-center me-3" href="dashboard_new.php">
-            <img src="../assets/images/logo.png" alt="GoCloud" class="brand-logo-image rounded me-2" style="width:36px;height:36px;">
-        </a>
-
-        <form class="d-flex flex-grow-1 mx-2" method="GET" action="dashboard_new.php">
-            <div class="input-group">
-                <span class="input-group-text bg-transparent border-0"><i class='bx bx-search'></i></span>
+        <!-- removed duplicate brand logo to keep header clean (search-focused) -->
+        <form class="d-flex justify-content-center flex-grow-1 mx-2" method="GET" action="dashboard_new.php">
+            <div class="input-group modern-search" style="max-width:760px;width:100%;">
+                <span class="input-group-text bg-transparent border-0"><i class='bx bx-search fs-5'></i></span>
                 <input class="form-control border-0 bg-transparent form-control-sm" name="q" type="search" placeholder="Search files, folders..." aria-label="Search" value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
                 <button class="btn btn-primary rounded-pill btn-sm" type="submit">Search</button>
             </div>
@@ -97,20 +94,6 @@ endif; ?>
             }
         });
     }
-
-    // Upload dropdown: delegate clicks to hidden inputs
-    document.addEventListener('click', function(e) {
-        const label = e.target.closest('label.dropdown-item');
-        if (!label) return;
-        const fileInput = document.getElementById('fileInput');
-        const folderInput = document.getElementById('folderInput');
-        if (label.textContent.trim().startsWith('Upload Files')) {
-            fileInput?.click();
-        }
-        if (label.textContent.trim().startsWith('Upload Folder')) {
-            folderInput?.click();
-        }
-    });
 
     // small typing placeholder effect removed to keep UX minimal
 </script>
