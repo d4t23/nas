@@ -229,6 +229,14 @@ elseif ($currentPath === 'computers') $activeMenu = 'devices';
         }
 
         toggleSidebar() {
+            if (window.innerWidth <= 768) {
+                const isOpen = this.sidebar.classList.toggle('open');
+                if (!isOpen) {
+                    this.sidebar.classList.remove('collapsed');
+                }
+                return;
+            }
+
             this.isCollapsed = !this.isCollapsed;
             this.sidebar.classList.toggle('collapsed', this.isCollapsed);
             localStorage.setItem('sidebarCollapsed', this.isCollapsed);
