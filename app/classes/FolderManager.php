@@ -9,10 +9,24 @@ class FolderManager
     public function __construct()
     {
         $this->db = Database::getConnection();
+        $this->ensureParentIdColumn();
+    }
+
+    private function ensureParentIdColumn(): void
+    {
+        $stmt = $this->db->query("SHOW COLUMNS FROM folders LIKE 'parent_id'");
+        if ($stmt && !$stmt->fetch()) {
+            $this->db->exec("ALTER TABLE folders ADD COLUMN parent_id INT DEFAULT NULL AFTER folder_name");
+            try {
+                $this->db->exec("ALTER TABLE folders ADD CONSTRAINT fk_folders_parent FOREIGN KEY (parent_id) REFERENCES folders(id) ON DELETE CASCADE");
+            } catch (PDOException $e) {
+                // ignore if constraint creation is not possible
+            }
+        }
     }
 
     // CREATE FOLDER (WITH PARENT + UNIQUE NAME)
-    public function createFolder(int $userId, string $name, ?int $parentId = null): bool
+    public function createFolder(int $userId, string $name, ?int $parentId = null): int|false
     {
         $name = trim($name);
 
@@ -52,42 +66,100 @@ class FolderManager
             VALUES (:user_id, :name, :parent_id, NOW())
         ");
 
-        return $stmt->execute([
+        if (!$stmt->execute([
             ':user_id' => $userId,
             ':name' => $name,
             ':parent_id' => $parentId
-        ]);
+        ])) {
+            return false;
+        }
+
+        return (int)$this->db->lastInsertId();
     }
 
-    // GET ROOT FOLDERS
-    public function getFolders(int $userId): array
+    // GET ROOT FOLDERS OR CHILD FOLDERS
+    public function getFolders(int $userId, ?int $parentId = null): array
     {
-        $stmt = $this->db->prepare("
+        $sql = "
             SELECT * FROM folders 
             WHERE user_id = :user_id 
-            AND parent_id IS NULL
-            AND deleted_at IS NULL 
-            ORDER BY created_at DESC
-        ");
-        $stmt->execute([':user_id' => $userId]);
+            AND deleted_at IS NULL
+        ";
+
+        if ($parentId === null) {
+            $sql .= " AND parent_id IS NULL";
+        } else {
+            $sql .= " AND parent_id = :parent_id";
+        }
+
+        $sql .= " ORDER BY created_at DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $params = [':user_id' => $userId];
+        if ($parentId !== null) {
+            $params[':parent_id'] = $parentId;
+        }
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
     // GET CHILD FOLDERS
     public function getSubFolders(int $parentId, int $userId): array
     {
+        return $this->getFolders($userId, $parentId);
+    }
+
+    public function getFolderByName(int $userId, string $name, ?int $parentId = null): ?array
+    {
         $stmt = $this->db->prepare("
             SELECT * FROM folders 
-            WHERE parent_id = :parent_id 
-            AND user_id = :user_id 
+            WHERE user_id = :user_id 
+            AND folder_name = :name 
+            AND parent_id " . ($parentId === null ? "IS NULL" : "= :parent_id") . "
             AND deleted_at IS NULL
-            ORDER BY created_at DESC
+            LIMIT 1
         ");
-        $stmt->execute([
-            ':parent_id' => $parentId,
-            ':user_id' => $userId
-        ]);
-        return $stmt->fetchAll();
+
+        $params = [
+            ':user_id' => $userId,
+            ':name' => $name
+        ];
+
+        if ($parentId !== null) {
+            $params[':parent_id'] = $parentId;
+        }
+
+        $stmt->execute($params);
+        $folder = $stmt->fetch();
+        return $folder ?: null;
+    }
+
+    public function ensureFolderPath(int $userId, ?int $rootParentId, string $relativePath): ?int
+    {
+        $segments = array_filter(preg_split('#[\\/]#', trim($relativePath, '/\\')), fn($segment) => $segment !== '' && $segment !== '.' && $segment !== '..');
+        $parentId = $rootParentId;
+
+        foreach ($segments as $segment) {
+            $segment = trim($segment);
+            if ($segment === '') {
+                continue;
+            }
+
+            $existing = $this->getFolderByName($userId, $segment, $parentId);
+            if ($existing) {
+                $parentId = (int)$existing['id'];
+                continue;
+            }
+
+            $created = $this->createFolder($userId, $segment, $parentId);
+            if ($created === false) {
+                return null;
+            }
+
+            $parentId = $created;
+        }
+
+        return $parentId;
     }
 
     // GET SINGLE FOLDER
@@ -109,7 +181,6 @@ class FolderManager
     // DELETE (SOFT DELETE + CHILDREN)
     public function deleteFolder(int $id, int $userId): bool
     {
-        // Delete current
         $stmt = $this->db->prepare("
             UPDATE folders 
             SET deleted_at = NOW() 
@@ -121,13 +192,29 @@ class FolderManager
             ':user_id' => $userId
         ]);
 
-        // Delete children recursively
-        $this->deleteChildren($id, $userId);
+        if ($deleted) {
+            $this->deleteFilesInFolder($id, $userId);
+            $this->deleteChildren($id, $userId);
+        }
 
         return $deleted;
     }
 
-    private function deleteChildren(int $parentId, int $userId)
+    private function deleteFilesInFolder(int $folderId, int $userId): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE files 
+            SET deleted_at = NOW() 
+            WHERE folder_id = :folder_id 
+            AND user_id = :user_id
+        ");
+        $stmt->execute([
+            ':folder_id' => $folderId,
+            ':user_id' => $userId
+        ]);
+    }
+
+    private function deleteChildren(int $parentId, int $userId): void
     {
         $stmt = $this->db->prepare("
             SELECT id FROM folders WHERE parent_id = :parent_id AND user_id = :user_id
@@ -140,6 +227,76 @@ class FolderManager
         while ($row = $stmt->fetch()) {
             $this->deleteFolder($row['id'], $userId);
         }
+    }
+
+    public function getBreadcrumbs(int $folderId, int $userId): array
+    {
+        $crumbs = [];
+        $current = $this->getFolder($folderId, $userId);
+
+        while ($current) {
+            array_unshift($crumbs, $current);
+            if (empty($current['parent_id'])) {
+                break;
+            }
+            $current = $this->getFolder((int)$current['parent_id'], $userId);
+        }
+
+        return $crumbs;
+    }
+
+    public function moveFolder(int $folderId, int $userId, ?int $targetParentId): bool
+    {
+        if ($targetParentId === $folderId) {
+            return false;
+        }
+
+        $folder = $this->getFolder($folderId, $userId);
+        if (!$folder) {
+            return false;
+        }
+
+        if ($targetParentId !== null) {
+            $targetParent = $this->getFolder($targetParentId, $userId);
+            if (!$targetParent) {
+                return false;
+            }
+        }
+
+        $stmt = $this->db->prepare("
+            SELECT id FROM folders 
+            WHERE folder_name = :name 
+            AND user_id = :user_id 
+            AND parent_id " . ($targetParentId === null ? "IS NULL" : "= :target_parent_id") . "
+            AND deleted_at IS NULL
+        ");
+
+        $params = [
+            ':name' => $folder['folder_name'],
+            ':user_id' => $userId
+        ];
+
+        if ($targetParentId !== null) {
+            $params[':target_parent_id'] = $targetParentId;
+        }
+
+        $stmt->execute($params);
+        if ($stmt->fetch()) {
+            return false;
+        }
+
+        $stmt = $this->db->prepare("
+            UPDATE folders 
+            SET parent_id = :parent_id 
+            WHERE id = :id 
+            AND user_id = :user_id
+        ");
+
+        return $stmt->execute([
+            ':parent_id' => $targetParentId,
+            ':id' => $folderId,
+            ':user_id' => $userId
+        ]);
     }
 
     // RESTORE

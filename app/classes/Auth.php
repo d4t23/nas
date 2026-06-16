@@ -21,6 +21,16 @@ class Auth
      */
     public function register(array $data): array
     {
+        // Validate password policy
+        $password = $data['password'] ?? '';
+        $validation = $this->validatePassword($password);
+        if (!$validation['success']) {
+            return [
+                'success' => false,
+                'message' => $validation['message']
+            ];
+        }
+
         // Check email kama ipo tayari
         if ($this->userModel->findByEmail($data['email'])) {
             return [
@@ -77,6 +87,35 @@ class Auth
             'success' => true,
             'message' => 'Login successful',
             'user' => $user
+        ];
+    }
+
+    public function validatePassword(string $password): array
+    {
+        if (strlen($password) < 8) {
+            return [
+                'success' => false,
+                'message' => 'Password must be at least 8 characters long.'
+            ];
+        }
+
+        if (!preg_match('/[A-Z]/', $password)) {
+            return [
+                'success' => false,
+                'message' => 'Password must include at least one uppercase letter.'
+            ];
+        }
+
+        if (!preg_match('/\d/', $password)) {
+            return [
+                'success' => false,
+                'message' => 'Password must include at least one number.'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Password is valid.'
         ];
     }
 

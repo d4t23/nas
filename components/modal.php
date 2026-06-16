@@ -1,7 +1,7 @@
 <div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form method="POST" action="dashboard.php">
+            <form method="POST" action="dashboard_new.php">
                 <div class="modal-header">
                     <h5 class="modal-title" id="createFolderModalLabel">Create Folder</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

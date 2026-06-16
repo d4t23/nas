@@ -31,7 +31,7 @@ $percent = $limit > 0 ? round($used / $limit * 100, 0) : 0;
     <nav class="menu flex-grow-1">
         <ul class="list-unstyled">
             <li><a href="dashboard_new.php" class="menu-item <?= $page !== 'shared' && !$activeFolder ? 'active' : '' ?>"><i class="bx bx-grid-alt"></i> Dashboard</a></li>
-            <li><a href="dashboard_new.php" class="menu-item <?= $activeFolder ? 'active' : '' ?>"><i class="bx bx-folder"></i> My Drive</a></li>
+            <li><a href="dashboard_new.php" class="menu-item <?= $activeFolder ? 'active' : '' ?>"><i class="bx bx-folder"></i> My Go</a></li>
             <li><a href="computers.php" class="menu-item"><i class="bx bx-desktop"></i> Computers</a></li>
             <li><a href="shared.php" class="menu-item"><i class="bx bx-group"></i> Shared With Me</a></li>
             <li><a href="recent.php" class="menu-item"><i class="bx bx-time"></i> Recent</a></li>

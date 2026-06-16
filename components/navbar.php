@@ -25,19 +25,14 @@ endif; ?>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width:220px;">
                     <li>
-                        <label class="dropdown-item mb-1 text-truncate" style="cursor:pointer;">
+                        <button type="button" class="dropdown-item upload-option" data-upload-type="files">
                             Upload Files
-                            <form method="POST" enctype="multipart/form-data" class="d-none" id="uploadFilesForm">
-                                <input type="file" name="files[]" id="fileInput" multiple>
-                            </form>
-                        </label>
+                        </button>
                     </li>
                     <li>
-                        <label class="dropdown-item mb-1" style="cursor:pointer;">Upload Folder
-                            <form method="POST" enctype="multipart/form-data" class="d-none" id="uploadFolderForm">
-                                <input webkitdirectory directory type="file" name="folder_files[]" id="folderInput">
-                            </form>
-                        </label>
+                        <button type="button" class="dropdown-item upload-option" data-upload-type="folder">
+                            Upload Folder
+                        </button>
                     </li>
                     <li>
                         <hr class="dropdown-divider">

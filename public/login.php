@@ -37,12 +37,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body class="auth-page bg-light">
-    <!-- Just an image -->
-    <nav class="navbar navbar-light bg-light custom-navbar">
-        <a class="navbar-brand" href="#">
-            <h4 class="mb-0">goCloud</h4>
+    <div class="auth-header">
+        <a href="#" class="auth-logo-link">
+            <div class="auth-logo-box">
+                <div class="auth-logo-cloud"></div>
+            </div>
+            <div class="auth-logo-text">
+                <span>GoCloud</span>
+            </div>
         </a>
-    </nav>
+    </div>
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">

@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             link.addEventListener('click', async function (event) {
 
-                if (!link.href.includes('dashboard.php')) return;
+                if (!link.href.includes('dashboard_new.php')) return;
 
                 event.preventDefault();
 
@@ -167,8 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const el = document.querySelector(`.file-item[data-item-id="${firstId}"]`);
             const type = el?.dataset?.itemType || 'file';
             if (type === 'folder') {
-                // navigate into folder
-                window.location.href = `dashboard.php?folder_id=${encodeURIComponent(firstId)}`;
+                window.location.href = `dashboard_new.php?folder_id=${encodeURIComponent(firstId)}`;
             } else {
                 window.location.href = `download.php?file_id=${encodeURIComponent(firstId)}`;
             }
@@ -187,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = 'dashboard.php';
+            form.action = 'dashboard_new.php';
             form.style.display = 'none';
             form.appendChild(createHiddenInput('file_id', firstId));
             form.appendChild(createHiddenInput('share_file', '1'));
@@ -212,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     formData.append('file_id', id);
                     formData.append('delete_file', '1');
                 }
-                await fetch('dashboard.php', {
+                await fetch('dashboard_new.php', {
                     method: 'POST',
                     body: formData,
                     redirect: 'follow'
@@ -243,7 +242,25 @@ document.addEventListener('DOMContentLoaded', function () {
     // UPLOAD FILE SUMMARY
     // =========================
     const selectedFilesInfo = document.getElementById('selectedFilesInfo');
+    const folderRelativePathsInput = document.getElementById('folderRelativePaths');
+    const fileInput = document.getElementById('fileInput');
     const folderInput = document.getElementById('folderInput');
+
+    function buildFolderRelativePaths(files) {
+        if (!files || !files.length) {
+            return [];
+        }
+
+        return Array.from(files).map(file => {
+            return file.webkitRelativePath || file.relativePath || file.name;
+        });
+    }
+
+    function updateFolderRelativePaths() {
+        if (!folderRelativePathsInput) return;
+        const paths = buildFolderRelativePaths(folderInput?.files);
+        folderRelativePathsInput.value = JSON.stringify(paths);
+    }
 
     function updateSelectedFilesInfo() {
         let text = 'No files selected yet.';
@@ -256,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 parts.push(`${fileCount} file${fileCount === 1 ? '' : 's'}`);
             }
             if (folderCount > 0) {
-                parts.push(`${folderCount} file${folderCount === 1 ? '' : 's'} from folder`);
+                parts.push(`${folderCount} folder file${folderCount === 1 ? '' : 's'}`);
             }
             text = parts.join(' + ');
         }
@@ -270,7 +287,10 @@ document.addEventListener('DOMContentLoaded', function () {
         fileInput.addEventListener('change', updateSelectedFilesInfo);
     }
     if (folderInput) {
-        folderInput.addEventListener('change', updateSelectedFilesInfo);
+        folderInput.addEventListener('change', () => {
+            updateSelectedFilesInfo();
+            updateFolderRelativePaths();
+        });
     }
 
 
@@ -314,9 +334,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // DRAG & DROP UPLOAD
     // =========================
     const dropArea = document.getElementById("dropArea");
-    const fileInput = document.getElementById("fileInput");
+    const uploadForm = document.getElementById('uploadForm');
 
-    if (dropArea && fileInput) {
+    if (dropArea && fileInput && folderInput && uploadForm) {
 
         dropArea.addEventListener("click", () => {
             fileInput.click();
@@ -473,7 +493,7 @@ window.promptRename = function (fileId, fileName) {
 
     form.method = 'POST';
 
-    form.action = 'dashboard.php';
+    form.action = 'dashboard_new.php';
 
     form.style.display = 'none';
 
@@ -516,7 +536,7 @@ document.addEventListener('click', function (e) {
         if (!id) return;
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = 'dashboard.php';
+        form.action = 'dashboard_new.php';
         form.style.display = 'none';
         form.appendChild(createHiddenInput('file_id', id));
         form.appendChild(createHiddenInput('share_file', '1'));
@@ -530,32 +550,53 @@ document.addEventListener('click', function (e) {
 // MOVE FILE
 // =========================
 window.promptMove = function (fileId) {
-
-    const folderId =
-        prompt('Enter folder ID:');
-
+    const folderId = prompt('Enter target folder ID:');
     if (folderId === null) return;
 
     const form = document.createElement('form');
-
     form.method = 'POST';
-
-    form.action = 'dashboard.php';
-
+    form.action = 'dashboard_new.php';
     form.style.display = 'none';
-
     form.appendChild(createHiddenInput('file_id', fileId));
-
     form.appendChild(createHiddenInput('target_folder_id', folderId));
-
     form.appendChild(createHiddenInput('move_file', '1'));
-
     document.body.appendChild(form);
-
     form.submit();
-
 };
 
+window.promptMoveFolder = function (folderId) {
+    const targetFolderId = prompt('Enter the ID of the destination folder, or leave blank for root:');
+    if (targetFolderId === null) return;
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'dashboard_new.php';
+    form.style.display = 'none';
+    form.appendChild(createHiddenInput('folder_id', folderId));
+    form.appendChild(createHiddenInput('target_parent_id', targetFolderId));
+    form.appendChild(createHiddenInput('move_folder', '1'));
+    document.body.appendChild(form);
+    form.submit();
+};
+
+window.copyFolder = function (folderId) {
+    alert('Copy folder is not implemented yet. Use move or create a duplicate folder manually.');
+};
+
+window.copyFile = function (fileId) {
+    alert('Copy file is not implemented yet. This is a placeholder for future copy support.');
+};
+
+window.showDetails = function (item) {
+    if (!item) return;
+    const type = item.dataset.itemType;
+    const name = item.dataset.fileName || item.dataset.folderName;
+    const size = item.dataset.fileSize || item.dataset.folderSize;
+    const modified = item.dataset.fileDate || item.dataset.folderCreated;
+    const owner = item.dataset.fileOwner || item.dataset.folderOwner;
+
+    alert(`Type: ${type}\nName: ${name}\nSize: ${size ? size + ' bytes' : 'Unknown'}\nModified: ${modified || 'Unknown'}\nOwner: ${owner || 'Unknown'}`);
+};
 
 // =========================
 // SHARE FILE
@@ -566,7 +607,7 @@ window.promptShare = function (fileId) {
 
     form.method = 'POST';
 
-    form.action = 'dashboard.php';
+    form.action = 'dashboard_new.php';
 
     form.style.display = 'none';
 
@@ -595,7 +636,7 @@ window.renameFolder = function (id, oldName) {
 
     form.method = 'POST';
 
-    form.action = 'dashboard.php';
+    form.action = 'dashboard_new.php';
 
     form.appendChild(createHiddenInput('folder_id', id));
 
@@ -645,7 +686,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchPhrases = [
         'Search files, folders...',
         'Find documents fast...',
-        'Search your GoCloud drive...'
+        'Search your Go...'
     ];
     let phraseIndex = 0;
     let charIndex = 0;
@@ -702,17 +743,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Upload dropdown file selector handling
     document.addEventListener('click', function (e) {
-        const label = e.target.closest('label.dropdown-item');
-        if (!label) return;
+        const button = e.target.closest('.upload-option');
+        if (!button) return;
 
-        const fileInput = document.getElementById('fileInput');
-        const folderInput = document.getElementById('folderInput');
+        const uploadModal = document.getElementById('uploadModal');
+        const fileInput = uploadModal?.querySelector('#fileInput');
+        const folderInput = uploadModal?.querySelector('#folderInput');
 
-        if (label.textContent.trim().startsWith('Upload Files')) {
+        if (uploadModal && window.bootstrap) {
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(uploadModal);
+            modalInstance.show();
+        }
+
+        if (button.dataset.uploadType === 'files') {
             fileInput?.click();
         }
 
-        if (label.textContent.trim().startsWith('Upload Folder')) {
+        if (button.dataset.uploadType === 'folder') {
             folderInput?.click();
         }
     });

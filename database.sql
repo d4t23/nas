@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS files (
     file_size BIGINT NOT NULL,
     file_type VARCHAR(100) NOT NULL,
     folder_id INT DEFAULT NULL,
+    is_starred TINYINT(1) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL,
     deleted_at DATETIME NULL DEFAULT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

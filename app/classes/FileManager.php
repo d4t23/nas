@@ -11,8 +11,33 @@ class FileManager
     {
         $this->db = Database::getConnection();
 
-        $this->uploadDir =
-            realpath(__DIR__ . '/../../storage/uploads');
+        $this->ensureFileTableColumns();
+
+        $uploadPath = __DIR__ . '/../../storage/uploads';
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        $this->uploadDir = realpath($uploadPath) ?: $uploadPath;
+    }
+
+    private function ensureFileTableColumns(): void
+    {
+        $columnsToAdd = [
+            'is_starred' => 'TINYINT(1) NOT NULL DEFAULT 0 AFTER folder_id',
+            'deleted_at' => 'DATETIME NULL DEFAULT NULL AFTER created_at',
+        ];
+
+        foreach ($columnsToAdd as $column => $definition) {
+            $stmt = $this->db->query("SHOW COLUMNS FROM files LIKE '{$column}'");
+            if ($stmt && !$stmt->fetch()) {
+                try {
+                    $this->db->exec("ALTER TABLE files ADD COLUMN {$column} {$definition}");
+                } catch (PDOException $e) {
+                    // Ignore if the column cannot be added, but do not break execution.
+                }
+            }
+        }
     }
 
     // =========================

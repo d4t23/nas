@@ -20,19 +20,82 @@ $userModel = new User();
 $message = '';
 $shareUrl = null;
 
-$folderId = $_GET['folder_id'] ?? null;
+if (isset($_SESSION['dashboard_message'])) {
+    $message = $_SESSION['dashboard_message'];
+    unset($_SESSION['dashboard_message']);
+}
+
+$folderId = isset($_GET['folder_id']) ? intval($_GET['folder_id']) : null;
 $page = $_GET['page'] ?? null;
 
 
 // CREATE FOLDER
 if (isset($_POST['create_folder'])) {
+    $parentId = isset($_POST['parent_folder_id']) && $_POST['parent_folder_id'] !== ''
+        ? intval($_POST['parent_folder_id'])
+        : $folderId;
 
     $folderManager->createFolder(
         $user['id'],
-        $_POST['folder_name']
+        $_POST['folder_name'],
+        $parentId
     );
 
-    header("Location: dashboard_new.php");
+    $redirect = 'dashboard_new.php';
+    if ($parentId) {
+        $redirect .= '?folder_id=' . intval($parentId);
+    }
+    header("Location: {$redirect}");
+    exit;
+}
+
+
+// DELETE FOLDER
+if (isset($_POST['delete_folder'])) {
+    $folderManager->deleteFolder(
+        intval($_POST['folder_id']),
+        $user['id']
+    );
+
+    $redirect = 'dashboard_new.php';
+    if ($folderId) {
+        $redirect .= '?folder_id=' . intval($folderId);
+    }
+    header("Location: {$redirect}");
+    exit;
+}
+
+
+// RENAME FOLDER
+if (isset($_POST['rename_folder'])) {
+    $folderManager->renameFolder(
+        intval($_POST['folder_id']),
+        $user['id'],
+        $_POST['new_name']
+    );
+
+    $redirect = 'dashboard_new.php';
+    if ($folderId) {
+        $redirect .= '?folder_id=' . intval($folderId);
+    }
+    header("Location: {$redirect}");
+    exit;
+}
+
+
+// MOVE FOLDER
+if (isset($_POST['move_folder'])) {
+    $folderManager->moveFolder(
+        intval($_POST['folder_id']),
+        $user['id'],
+        $_POST['target_parent_id'] !== '' ? intval($_POST['target_parent_id']) : null
+    );
+
+    $redirect = 'dashboard_new.php';
+    if ($folderId) {
+        $redirect .= '?folder_id=' . intval($folderId);
+    }
+    header("Location: {$redirect}");
     exit;
 }
 
@@ -41,8 +104,17 @@ if (isset($_POST['create_folder'])) {
 if (isset($_POST['upload_file'])) {
 
     $uploadFolderId = $_POST['upload_folder_id'] ?: null;
+    $folderRelativePaths = [];
+    if (!empty($_POST['folder_relative_paths'])) {
+        $decoded = json_decode($_POST['folder_relative_paths'], true);
+        if (is_array($decoded)) {
+            $folderRelativePaths = $decoded;
+        }
+    }
 
     $inputGroups = ['files', 'folder_files'];
+    $uploadedCount = 0;
+    $uploadErrors = [];
 
     foreach ($inputGroups as $group) {
         if (!isset($_FILES[$group]) || empty($_FILES[$group]['name'])) {
@@ -54,6 +126,14 @@ if (isset($_POST['upload_file'])) {
         $tmpNames = $_FILES[$group]['tmp_name'];
         $errors = $_FILES[$group]['error'];
         $sizes = $_FILES[$group]['size'];
+
+        if (!is_array($names)) {
+            $names = [$names];
+            $types = [$types];
+            $tmpNames = [$tmpNames];
+            $errors = [$errors];
+            $sizes = [$sizes];
+        }
 
         foreach ($names as $key => $name) {
             if ($name === '') {
@@ -68,12 +148,48 @@ if (isset($_POST['upload_file'])) {
                 'size' => $sizes[$key],
             ];
 
-            $fileManager->uploadFile(
+            $targetFolderId = $uploadFolderId;
+            if ($group === 'folder_files') {
+                $relativePath = $folderRelativePaths[$key] ?? '';
+                if ($relativePath === '') {
+                    $relativePath = trim(str_replace('\\', '/', pathinfo($name, PATHINFO_DIRNAME)), '/');
+                }
+
+                if ($relativePath !== '' && $relativePath !== '.') {
+                    $resolvedFolderId = $folderManager->ensureFolderPath(
+                        $user['id'], 
+                        $uploadFolderId,
+                        $relativePath
+                    );
+                    if ($resolvedFolderId !== null) {
+                        $targetFolderId = $resolvedFolderId;
+                    }
+                }
+                $file['name'] = basename(str_replace('\\', '/', $name));
+            }
+
+            $result = $fileManager->uploadFile(
                 $user['id'],
                 $file,
-                $uploadFolderId
+                $targetFolderId
             );
+
+            if ($result['success']) {
+                $uploadedCount++;
+            } else {
+                $uploadErrors[] = htmlspecialchars($file['name']) . ': ' . $result['message'];
+            }
         }
+    }
+
+    if ($uploadedCount > 0) {
+        $_SESSION['dashboard_message'] = "Uploaded {$uploadedCount} file(s).";
+    }
+    if (!empty($uploadErrors)) {
+        $_SESSION['dashboard_message'] = implode(' ', $uploadErrors);
+    }
+    if ($uploadedCount === 0 && empty($uploadErrors)) {
+        $_SESSION['dashboard_message'] = 'No files were selected or the files could not be processed.';
     }
 
     $redirect = 'dashboard_new.php';
@@ -160,9 +276,19 @@ if (isset($_POST['invite_user'])) {
 }
 
 
-$files = $folderId
-    ? $fileManager->getFiles($user['id'], $folderId)
-    : $fileManager->getRecentFiles($user['id']);
+$currentFolder = null;
+$breadcrumbs = [];
+
+if ($folderId) {
+    $currentFolder = $folderManager->getFolder($folderId, $user['id']);
+    if (!$currentFolder) {
+        header('Location: dashboard_new.php');
+        exit;
+    }
+    $breadcrumbs = $folderManager->getBreadcrumbs($folderId, $user['id']);
+}
+
+$files = $fileManager->getFiles($user['id'], $folderId);
 
 $totalFiles = count($files);
 $starredCount = 0;
@@ -192,7 +318,7 @@ foreach ($files as $file) {
     }
 }
 
-$folders = $folderManager->getFolders($user['id']);
+$folders = $folderManager->getFolders($user['id'], $folderId);
 $folderSizes = $fileManager->getFolderSizes($user['id']);
 $sharedFiles = [];
 if ($page === 'shared') {
@@ -223,7 +349,7 @@ if ($page === 'shared') {
 
 </head>
 
-<body class="dashboard-theme">
+<body class="dashboard-theme" data-current-folder-id="<?= htmlspecialchars($folderId) ?>">
 
     <?php include __DIR__ . '/../components/sidebar-modern.php'; ?>
 
@@ -298,6 +424,7 @@ if ($page === 'shared') {
                                 <button type="button" class="btn btn-outline-secondary btn-sm" id="gridViewBtn" title="Grid View"><i class='bx bx-grid-alt'></i></button>
                                 <button type="button" class="btn btn-outline-secondary btn-sm" id="largeGridViewBtn" title="Large Grid View"><i class='bx bx-grid'></i></button>
                                 <button type="button" class="btn btn-outline-secondary btn-sm" id="listViewBtn" title="List View"><i class='bx bx-list-ul'></i></button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="newFolderButton" onclick="newFolder()"><i class='bx bx-folder-plus'></i> New Folder</button>
                                 <button type="button" id="uploadButton" class="btn btn-dark rounded-pill px-4 upload-btn"
                                     data-bs-toggle="modal"
                                     data-bs-target="#uploadModal">
@@ -307,6 +434,22 @@ if ($page === 'shared') {
                                     </div>
                                 </button>
                             </div>
+                        </div>
+                        <div class="breadcrumb-row mb-4">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="dashboard_new.php">My Go</a></li>
+                                    <?php foreach ($breadcrumbs as $index => $crumb): ?>
+                                        <li class="breadcrumb-item <?= $index === count($breadcrumbs) - 1 ? 'active' : '' ?>" <?= $index === count($breadcrumbs) - 1 ? 'aria-current="page"' : '' ?>>
+                                            <?php if ($index < count($breadcrumbs) - 1): ?>
+                                                <a href="dashboard_new.php?folder_id=<?= $crumb['id'] ?>"><?= htmlspecialchars($crumb['folder_name']) ?></a>
+                                            <?php else: ?>
+                                                <?= htmlspecialchars($crumb['folder_name']) ?>
+                                            <?php endif; ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ol>
+                            </nav>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -361,7 +504,7 @@ if ($page === 'shared') {
 
             <?php else: ?>
 
-                <?php if (empty($files)): ?>
+                <?php if (empty($files) && empty($folders)): ?>
                     <div class="empty-state-card card border-0 shadow-sm text-center py-5 px-4 mb-4">
                         <div class="card-body">
                             <img src="../assets/illustrations/empty_home.svg" alt="No files" class="img-fluid mb-4 empty-state-illustration">
@@ -388,7 +531,12 @@ if ($page === 'shared') {
                         <?php foreach ($folders as $folder): ?>
                             <div class="file-item col-xl-3 col-lg-4 col-md-6 col-12"
                                 data-item-id="<?= $folder['id'] ?>"
-                                data-item-type="folder">
+                                data-item-type="folder"
+                                data-folder-name="<?= htmlspecialchars($folder['folder_name']) ?>"
+                                data-folder-size="<?= isset($folderSizes[$folder['id']]) ? $folderSizes[$folder['id']]['total_size'] : 0 ?>"
+                                data-folder-filecount="<?= isset($folderSizes[$folder['id']]) ? $folderSizes[$folder['id']]['file_count'] : 0 ?>"
+                                data-folder-created="<?= htmlspecialchars($folder['created_at']) ?>"
+                                data-folder-owner="<?= htmlspecialchars($user['name']) ?>">
                                 <div class="file-box h-100 position-relative file-card shadow-sm folder-card">
                                     <div class="file-card-header d-flex justify-content-between align-items-start">
                                         <div class="form-check">
@@ -403,6 +551,29 @@ if ($page === 'shared') {
                                                     <button class="dropdown-item" type="button" onclick="location.href='dashboard_new.php?folder_id=<?= $folder['id'] ?>'">
                                                         <i class='bx bx-folder-open me-2'></i>Open
                                                     </button>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item" type="button" onclick="renameFolder(<?= $folder['id'] ?>, '<?= addslashes(htmlspecialchars($folder['folder_name'])) ?>')">
+                                                        <i class='bx bx-edit me-2'></i>Rename
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item" type="button" onclick="promptMoveFolder(<?= $folder['id'] ?>)">
+                                                        <i class='bx bx-right-arrow-alt me-2'></i>Move
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item" type="button" onclick="copyFolder(<?= $folder['id'] ?>)">
+                                                        <i class='bx bx-copy me-2'></i>Copy
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item" type="button" onclick="showDetails(this.closest('.file-item'))">
+                                                        <i class='bx bx-info-circle me-2'></i>Details
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <div class="dropdown-divider"></div>
                                                 </li>
                                                 <li>
                                                     <form method="POST">
@@ -455,7 +626,12 @@ if ($page === 'shared') {
                                 data-item-type="file"
                                 data-file-starred="<?= !empty($file['is_starred']) ? '1' : '0' ?>"
                                 data-file-type="<?= htmlspecialchars($fileType) ?>"
-                                data-file-extension="<?= htmlspecialchars($fileExtension) ?>">
+                                data-file-extension="<?= htmlspecialchars($fileExtension) ?>"
+                                data-file-name="<?= htmlspecialchars($file['file_name']) ?>"
+                                data-file-size="<?= htmlspecialchars($file['file_size']) ?>"
+                                data-file-date="<?= htmlspecialchars($file['created_at']) ?>"
+                                data-file-owner="<?= htmlspecialchars($user['name']) ?>"
+                                data-file-folder-id="<?= htmlspecialchars($file['folder_id'] ?? '') ?>">
                                 <div class="file-box h-100 position-relative file-card shadow-sm">
                                     <div class="file-card-header d-flex justify-content-between align-items-start">
                                         <div class="form-check">
@@ -474,6 +650,21 @@ if ($page === 'shared') {
                                                 <li>
                                                     <button type="button" class="dropdown-item" onclick="toggleRenameForm(<?= $file['id'] ?>)">
                                                         <i class='bx bx-edit me-2'></i>Rename
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button type="button" class="dropdown-item" onclick="promptMove(<?= $file['id'] ?>)">
+                                                        <i class='bx bx-right-arrow-alt me-2'></i>Move
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button type="button" class="dropdown-item" onclick="copyFile(<?= $file['id'] ?>)">
+                                                        <i class='bx bx-copy me-2'></i>Copy
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button type="button" class="dropdown-item" onclick="showDetails(this.closest('.file-item'))">
+                                                        <i class='bx bx-info-circle me-2'></i>Details
                                                     </button>
                                                 </li>
                                                 <li>
@@ -612,16 +803,17 @@ if ($page === 'shared') {
     <div class="modal fade" id="uploadModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form method="POST" enctype="multipart/form-data">
+                <form id="uploadForm" method="POST" enctype="multipart/form-data">
                     <div class="modal-header">
                         <h5>Upload Files</h5>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="upload_folder_id" value="<?= htmlspecialchars($folderId) ?>">
+                        <input type="hidden" name="folder_relative_paths" id="folderRelativePaths" value="">
                         <div id="dropArea" class="drop-area">
                             <i class='bx bx-cloud-upload display-3'></i>
                             <h5>Drag & Drop Files or Folders</h5>
-                            <p>Drop items here, or choose files and folders below.</p>
+                            <p>Upload individual files or entire folders with path preservation.</p>
                             <input type="file" name="files[]" id="fileInput" multiple hidden>
                             <input type="file" name="folder_files[]" id="folderInput" webkitdirectory directory multiple hidden>
                             <div class="d-flex gap-2 justify-content-center">
@@ -651,7 +843,7 @@ if ($page === 'shared') {
 
                     <div class="modal-footer">
 
-                        <button class="btn btn-primary" name="upload_file">
+                        <button type="submit" class="btn btn-primary" name="upload_file">
 
                             Upload
 

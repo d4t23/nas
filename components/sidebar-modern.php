@@ -61,7 +61,7 @@ elseif ($currentPath === 'computers') $activeMenu = 'devices';
                 <li class="sidebar-submenu-item">
                     <a href="dashboard_new.php" class="sidebar-submenu-link <?= $activeMenu === 'folders' && !$activeFolder ? 'active' : '' ?>">
                         <i class='bx bx-folder-open'></i>
-                        My Drive
+                        My Go
                     </a>
                 </li>
                 <li class="sidebar-submenu-item">
@@ -358,12 +358,14 @@ elseif ($currentPath === 'computers') $activeMenu = 'devices';
     function newFolder() {
         const folderName = prompt('Enter folder name:');
         if (folderName && folderName.trim()) {
+            const currentFolderId = document.body.dataset.currentFolderId || '';
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = 'dashboard_new.php';
             form.innerHTML = `
                 <input type="hidden" name="create_folder" value="1">
                 <input type="hidden" name="folder_name" value="${folderName.trim()}">
+                <input type="hidden" name="parent_folder_id" value="${currentFolderId}">
             `;
             document.body.appendChild(form);
             form.submit();

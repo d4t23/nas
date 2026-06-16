@@ -15,11 +15,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm = $_POST['confirm_password'] ?? '';
     if ($password !== $confirm) {
         $message = 'Passwords do not match.';
-    } elseif ($token && $reset->completeReset($token, $password)) {
-        header('Location: login.php');
-        exit;
     } else {
-        $message = 'Unable to reset password. The token may be invalid or expired.';
+        require_once __DIR__ . '/../app/classes/Auth.php';
+        $auth = new Auth();
+        $validation = $auth->validatePassword($password);
+        if (!$validation['success']) {
+            $message = $validation['message'];
+        } elseif ($token && $reset->completeReset($token, $password)) {
+            header('Location: login.php');
+            exit;
+        } else {
+            $message = 'Unable to reset password. The token may be invalid or expired.';
+        }
     }
 }
 ?>
