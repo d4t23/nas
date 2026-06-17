@@ -2603,106 +2603,44 @@ transition:.25s ease;
 
 
 }
+        .scan-btn:hover{
+        transform:translateY(-5px);
+        }
 
-
-.scan-btn:hover{
-
-transform:translateY(-5px);
-}
-
-.scan-btn:active{
-
-
-transform:scale(.95);
-
-
-}
-
-
-}
+        .scan-btn:active{
+        transform:scale(.95);
+        }
+        }
 
 /* ==========================
    SCAN FLOATING BUTTON
 ========================== */
+            .scan-btn{
+            display:none;
 
-
-.scan-btn{
-
-
-display:none;
-
-
-}
-
-
-
-
-@media(max-width:768px){
-
-
-.scan-btn{
-
-
-display:flex;
-
-
-position:fixed;
-
-
-right:25px;
-
-
-bottom:90px;
-
-
-width:65px;
-
-
-height:65px;
-
-
-border-radius:20px;
-
-
-border:none;
-
-
-background:#2563eb;
-
-
-color:white;
-
-
-font-size:30px;
-
-
-align-items:center;
-
-
-justify-content:center;
-
-
-z-index:9998;
-
-
-box-shadow:0 10px 25px rgba(0,0,0,.25);
-
-
-transition:.3s ease;
-
-
-}
-
-
-
-.scan-btn:hover{
-
-
-transform:translateY(-5px);
-
-
-}
-
+            }
+            @media(max-width:768px){
+            .scan-btn{
+            display:flex;
+            position:fixed;
+            right:25px;
+            bottom:90px;
+            width:65px;
+            height:65px;
+            border-radius:20px;
+            border:none;
+            background:#2563eb;
+            color:white;
+            font-size:30px;
+            align-items:center;
+            justify-content:center;
+            z-index:9998;
+            box-shadow:0 10px 25px rgba(0,0,0,.25);
+            transition:.3s ease;
+            }
+                    .scan-btn:hover{
+        transform:translateY(-5px);
+        }
 
 }
 
@@ -2716,73 +2654,25 @@ transform:translateY(-5px);
 ========================== */
 
 
-.toast-message{
+        .toast-message{
+        position:fixed;
+        bottom:90px;
+        left:20px;
+        background:#1f2937;
+        color:white;
+        padding:12px 20px;
+        border-radius:12px;
+        font-size:14px;
+        opacity:0;
+        visibility:hidden;
+        transform:translateX(-120%);
+        transition:.35s ease;
+        z-index:10000;
+        box-shadow:0 10px 25px rgba(0,0,0,.2);
+        }
 
-
-position:fixed;
-
-
-bottom:90px;
-
-
-left:20px;
-
-
-
-background:#1f2937;
-
-
-color:white;
-
-
-
-padding:12px 20px;
-
-
-
-border-radius:12px;
-
-
-
-font-size:14px;
-
-
-
-opacity:0;
-
-
-visibility:hidden;
-
-
-
-transform:translateX(-120%);
-
-
-
-transition:.35s ease;
-
-
-
-z-index:10000;
-
-
-
-box-shadow:0 10px 25px rgba(0,0,0,.2);
-
-
-
-}
-
-.toast-message.show{
-
-
-opacity:1;
-
-
-visibility:visible;
-
-
-transform:translateX(0);
-
-
-}
+        .toast-message.show{
+        opacity:1;
+        visibility:visible;
+        transform:translateX(0);
+        }
