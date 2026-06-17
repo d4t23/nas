@@ -890,11 +890,55 @@ if ($page === 'shared') {
                 </form>
             </div>
         </div>
+        
     </div>
+<button 
+type="button" 
+class="scan-btn"
+onclick="scanUnavailable()">
+    <i class='bx bx-camera'></i>
+</button>
+<!-- Toast Message -->
 
+<div id="toastMessage" class="toast-message">
+    This feature is unavailable for now
+</div>
+
+   <div class="mobile-footer">
+    <a href="dashboard_new.php">
+        <i class='bx bx-home'></i>
+        <span>Home</span>
+    </a>
+
+    <a href="dashboard_new.php">
+        <i class='bx bx-folder'></i>
+        <span>Files</span>
+    </a>
+
+    <a href="settings.php">
+        <i class='bx bx-cog'></i>
+        <span>Settings</span>
+    </a>
+
+    <a href="settings.php">
+        <?php if ($user['profile_picture']): ?>
+            <img src="../storage/profiles/<?= htmlspecialchars($user['profile_picture']) ?>"
+                 class="footer-avatar"
+                 alt="Profile">
+        <?php else: ?>
+            <div class="footer-avatar-placeholder">
+                <?= strtoupper(substr($user['name'],0,1)) ?>
+            </div>
+        <?php endif; ?>
+
+        <span>Profile</span>
+    </a>
+</div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/main.js"></script>
-    <script src="../assets/js/alert.js"></script>
+    <script src="../assets/js/alert.js">
+    </script>
+
 
 </body>
 

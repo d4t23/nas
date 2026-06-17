@@ -136,6 +136,7 @@
 
     .auth-logo-text span {
         font-size: 1rem;
+        font-family: 'Plus Jakarta Sans', sans-serif;
         font-weight: 700;
         letter-spacing: 0.02em;
     }
@@ -285,432 +286,570 @@
     overflow-y: auto;
 }
 
-/* ===================================
-FILE VIEW SYSTEM
+//* ===================================
+   PERFECT DRIVE STYLE FILE VIEW
 =================================== */
 
-/* GRID VIEW */
-.grid-view .file-item {
-    display: block;
+
+/* =====================
+   GRID VIEW
+===================== */
+
+
+.grid-view .file-item{
+
+display:block;
+
 }
 
-/* LIST VIEW */
-.list-view .file-item {
-    width: 100%;
-    flex: 0 0 100%;
-    max-width: 100%;
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    margin-bottom: 0;
-    border-bottom: 1px solid #e5e7eb;
+
+
+.grid-view .file-box{
+
+background:#fff;
+
+border-radius:22px;
+
+border:1px solid #ececec;
+
+overflow:visible;
+
+position:relative;
+
+transition:.25s ease;
+
+
 }
 
-.list-view .file-container {
-    display: block;
+
+
+.grid-view .file-box:hover{
+
+transform:translateY(-4px);
+
+box-shadow:0 12px 30px rgba(0,0,0,.08);
+
 }
 
-.list-view .row.g-4 {
-    margin-left: 0;
-    margin-right: 0;
+
+
+
+/* checkbox always visible */
+
+.grid-view .file-select,
+.grid-view .file-checkbox{
+
+opacity:1 !important;
+
+visibility:visible !important;
+
+position:absolute;
+
+top:12px;
+
+left:12px;
+
+z-index:20;
+
+
 }
 
-.list-view .file-box {
-    display: grid;
-    grid-template-columns: auto auto minmax(0, 1fr) auto;
-    grid-template-areas: "header preview info actions";
-    gap: 1rem;
-    align-items: center;
-    padding: 12px 16px;
-    background: #fff;
-    border-radius: 0;
-    box-shadow: none;
-    transform: none;
-    border: none;
+
+
+
+/* three dots always visible */
+
+.grid-view .dropdown{
+
+
+opacity:1 !important;
+
+visibility:visible !important;
+
+position:absolute;
+
+right:12px;
+
+top:12px;
+
+z-index:20;
+
+
 }
 
-.list-view .file-card-header {
-    grid-area: header;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-width: 120px;
+
+
+.grid-view .dropdown button{
+
+border-radius:50%;
+
+width:35px;
+
+height:35px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+
 }
 
-.list-view .file-card-header .dropdown {
-    display: none;
+
+
+.grid-view .file-preview-area,
+.grid-view .file-icon-box{
+
+
+height:180px;
+
+border-radius:20px 20px 0 0;
+
+overflow:hidden;
+
+
 }
+
+
+
+
+
+.grid-view .file-preview-thumb{
+
+height:180px;
+
+width:100%;
+
+object-fit:cover;
+
+
+}
+
+
+
+.grid-view .file-info{
+
+padding:15px;
+
+}
+
+
+
+
+
+/* =====================
+       LIST VIEW
+===================== */
+
+
+
+.list-view{
+
+display:flex;
+
+flex-direction:column;
+
+gap:0;
+
+padding-bottom:90px;
+
+}
+
+
+
+
+.list-view .file-item{
+
+width:100%;
+
+margin:0;
+
+padding:0;
+
+border-bottom:1px solid rgba(148,163,184,.25);
+
+}
+
+
+
+
+.list-view .file-box{
+
+
+display:flex;
+
+align-items:center;
+
+gap:14px;
+
+
+height:72px;
+
+
+padding:10px 12px;
+
+
+background:transparent;
+
+
+border:none;
+
+
+border-radius:0;
+
+
+box-shadow:none;
+
+
+}
+
+
+
+
+
+/* hover */
+
+.list-view .file-box:hover{
+
+
+background:rgba(148,163,184,.08);
+
+transform:none;
+
+
+}
+
+
+
+/* ICON */
 
 .list-view .file-preview-area,
-.list-view .file-icon-box {
-    grid-area: preview;
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    padding: 0;
-}
+.list-view .file-icon-box{
 
-.list-view .file-preview-area {
-    display: grid;
-    place-items: center;
-}
 
-.list-view .file-preview-thumb {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    object-fit: cover;
-}
+width:45px;
 
-.list-view .file-card-badge {
-    display: none;
-}
+height:45px;
 
-.list-view .file-info {
-    grid-area: info;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
+min-width:45px;
 
-.list-view .file-info .file-name-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
 
-.list-view .file-info .d-flex.flex-wrap {
-    gap: 0.75rem;
-    align-items: center;
-}
+background:#1f2937;
 
-.list-view .file-card-footer {
-    grid-area: actions;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    background: transparent;
-}
 
-.list-view .file-card-footer .btn-outline-primary {
-    display: none;
-}
+border-radius:12px;
 
-.list-view .list-view-actions {
-    display: flex !important;
-}
 
-.list-view .file-box:hover {
-    background: rgba(15, 23, 42, 0.03);
-    transform: none;
-    box-shadow: none;
-}
+display:flex;
 
-.list-view .file-preview-area .file-icon-box i,
-.list-view .file-preview-area i {
-    font-size: 1.3rem;
-}
+align-items:center;
 
-/* FILE BOX */
-.file-box {
-    background: #fff;
-    border-radius: 18px;
-    overflow: hidden;
-    border: 1px solid #ececec;
-    transition: .3s ease;
-    height: 100%;
-}
+justify-content:center;
 
-.file-box:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
-}
 
-.file-box .dropdown {
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .2s ease, visibility .2s ease;
-}
-
-.file-box:hover .dropdown {
-    opacity: 1;
-    visibility: visible;
-}
-
-.icon-action {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-}
-
-.icon-action span {
-    display: none;
-}
-
-.icon-action:hover span {
-    display: inline-block;
-}
-
-/* File card refinements */
-.file-card {
-    border-radius: 14px;
-    overflow: hidden;
-    transition: transform .18s ease, box-shadow .18s ease;
-    background: var(--surface, #fff);
-}
-
-.file-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 18px 48px rgba(2, 6, 23, 0.12);
-}
-
-.file-card .file-select {
-    position: absolute;
-    left: 12px;
-    top: 12px;
-    z-index: 5;
-    opacity: 0;
-    transition: opacity .18s ease;
-}
-
-.file-card:hover .file-select {
-    opacity: 1;
-}
-
-.file-preview-thumb {
-    height: 150px;
-    width: 100%;
-    object-fit: cover;
-    border-radius: 10px;
-}
-
-.file-card-actions-overlay {
-    position: absolute;
-    left: 12px;
-    top: 12px;
-    display: flex;
-    gap: 0.5rem;
-    z-index: 6;
-    opacity: 0;
-    transform: translateY(-6px);
-    transition: opacity .18s ease, transform .18s ease;
-}
-
-.file-card:hover .file-card-actions-overlay {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.file-info .file-name-label {
-    max-width: 100%;
-    white-space: normal;
-    word-break: break-word;
-    overflow-wrap: anywhere;
-}
-
-/* PREVIEW SIZE FIXED */
-.file-preview {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    display: block;
-    background: #f1f5f9;
-}
-
-/* NON IMAGE ICON */
-.file-icon-box {
-    width: 100%;
-    height: 180px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f8fafc;
-}
-
-/* FILE INFO */
-.file-info {
-    padding: 15px;
-}
-
-.inline-rename-form {
-    transition: max-height 0.25s ease;
-}
-
-.file-name-label {
-    white-space: normal;
-}
-
-.folder-size {
-    display: block;
-    font-size: 12px;
-    color: #94a3b8;
-}
-
-.drop-area {
-    background: #f8fafc;
-    border: 2px dashed #cbd5e1;
-    border-radius: 16px;
-    padding: 30px 20px;
-    text-align: center;
-    cursor: pointer;
-}
-
-.drop-area.dragover {
-    background: #e0f2fe;
-    border-color: #38bdf8;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-
-    .file-preview {
-        height: 180px;
-    }
-
-    .list-view .file-box {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .list-view .file-preview,
-    .list-view .file-icon-box {
-        width: 100%;
-        height: 180px;
-    }
-}
-
-.file-list-header {
-    display: none;
-}
-
-.file-item.selected .file-box {
-    border-color: rgba(37, 99, 235, 0.5);
-    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
-}
-
-.list-view .file-list-header {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    flex: 0 0 100%;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: #fff;
 }
 
 
 
-.list-view .file-item {
-    width: 100%;
-    flex: 0 0 100%;
-    max-width: 100%;
-    padding-bottom: 0;
-    margin-bottom: 0;
-    border-bottom: 1px solid #e5e7eb;
+
+.list-view .file-preview-thumb{
+
+
+width:45px;
+
+height:45px;
+
+border-radius:10px;
+
+
+object-fit:cover;
+
+
 }
 
-.list-view .file-box {
-    display: grid;
-    grid-template-columns: auto auto minmax(0, 1fr) auto;
-    grid-template-areas: "header preview info actions";
-    gap: 1rem;
-    align-items: center;
-    padding: 12px 16px;
-    background: #fff;
-    border-radius: 0;
-    box-shadow: none;
-    transform: none;
-    border: none;
+
+
+/* DETAILS */
+
+.list-view .file-info{
+
+
+padding:0;
+
+display:flex;
+
+flex-direction:column;
+
+
+gap:3px;
+
+
+flex:1;
+
+
+min-width:0;
+
+
 }
 
-.list-view .file-card-header {
-    grid-area: header;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-width: 120px;
+
+
+
+.list-view .file-name-label{
+
+
+font-size:15px;
+
+font-weight:500;
+
+
+white-space:nowrap;
+
+overflow:hidden;
+
+text-overflow:ellipsis;
+
+
 }
 
-.list-view .file-card-header .dropdown {
-    display: none;
+
+
+
+.list-view .file-info small{
+
+
+font-size:13px;
+
+color:#94a3b8;
+
+
 }
+
+
+
+
+/* ACTION BUTTONS */
+
+.list-view .file-card-footer{
+
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
+
+
+margin-left:auto;
+
+
+}
+
+
+
+
+.list-view .file-card-footer button{
+
+
+width:32px;
+
+height:32px;
+
+
+border-radius:50%;
+
+
+border:none;
+
+
+background:transparent;
+
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+
+color:#64748b;
+
+
+}
+
+
+
+.list-view .file-card-footer button:hover{
+
+
+background:#e5e7eb;
+
+color:#2563eb;
+
+
+}
+
+
+
+/* hide dropdown dots */
+
+.list-view .dropdown{
+
+
+display:none !important;
+
+
+}
+
+
+
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+
+.list-view .file-box{
+
+
+height:68px;
+
+padding:8px;
+
+
+}
+
+
 
 .list-view .file-preview-area,
-.list-view .file-icon-box {
-    grid-area: preview;
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    padding: 0;
+.list-view .file-icon-box{
+
+
+width:42px;
+
+height:42px;
+
+min-width:42px;
+
+
 }
 
-.list-view .file-preview-area {
-    display: grid;
-    place-items: center;
+
+.list-view .file-preview-thumb{
+
+
+width:42px;
+
+height:42px;
+
+
 }
 
-.list-view .file-preview-thumb {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    object-fit: cover;
+
+
+.list-view .file-card-footer{
+
+
+gap:3px;
+
+
 }
 
-.list-view .file-card-badge {
-    display: none;
+
+
+.list-view .file-card-footer button{
+
+
+width:28px;
+
+height:28px;
+
+
 }
 
-.list-view .file-info {
-    grid-area: info;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
+
+
 }
 
-.list-view .file-info .file-name-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+
+
+/* =====================
+ MOBILE
+===================== */
+
+
+@media(max-width:768px){
+
+
+
+.grid-view .file-item{
+
+width:50%;
+
 }
 
-.list-view .file-info .d-flex.flex-wrap {
-    gap: 0.75rem;
-    align-items: center;
+
+
+
+.grid-view .file-preview-area,
+.grid-view .file-icon-box{
+
+
+height:150px;
+
+
 }
 
-.list-view .file-card-footer {
-    grid-area: actions;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    background: transparent;
+
+
+.grid-view .file-preview-thumb{
+
+
+height:150px;
+
+
 }
 
-.list-view .file-card-footer .btn-outline-primary {
-    display: none;
+
+
+
+.list-view .file-box{
+
+
+padding:14px 8px;
+
+
 }
 
-.list-view .list-view-actions {
-    display: flex !important;
+
+
+.list-view .file-preview-area,
+.list-view .file-icon-box{
+
+
+width:45px;
+
+height:45px;
+
+
 }
 
-.list-view .file-box:hover {
-    background: rgba(15, 23, 42, 0.03);
-    transform: none;
-    box-shadow: none;
+
+
+.list-view .file-preview-thumb{
+
+
+width:45px;
+
+height:45px;
+
+
 }
 
+
+
+}
 .summary-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -733,11 +872,95 @@ FILE VIEW SYSTEM
     align-items: center;
     justify-content: flex-end;
 }
+/* Mobile footer */
+.mobile-footer{
+    display:none;
+}
+/*layout full*/
+
+@media (max-width:768px){
+    
+
+    .mobile-footer{
+        display:flex;
+        position:fixed;
+        bottom:0;
+        left:0;
+        width:100%;
+        height:65px;
+        background:#fff;
+        border-top:1px solid #e5e7eb;
+        justify-content:space-around;
+        align-items:center;
+        z-index:9999;
+        box-shadow:0 -5px 20px rgba(0,0,0,.08);
+    }
+
+    .mobile-footer a{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        text-decoration:none;
+        color:#64748b;
+        font-size:.75rem;
+    }
+
+    .mobile-footer i{
+        font-size:1.4rem;
+        margin-bottom:2px;
+    }
+
+    .file-container{
+        padding-bottom:90px;
+    }
+      .footer-avatar{
+        width:24px;
+        height:24px;
+        border-radius:50%;
+        object-fit:cover;
+    }
+
+    .footer-avatar-placeholder{
+        width:24px;
+        height:24px;
+        border-radius:50%;
+        background:#2563eb;
+        color:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:.7rem;
+        font-weight:600;
+    }
+
+}
 
 @media (max-width: 991.98px) {
     .dashboard-head-row .col-lg-4 {
         justify-content: center;
         margin-top: 1rem;
+    }
+        /* Hide paragraph */
+    .dashboard-access-row p{
+        display:none !important;
+    }
+
+    /* Hide Recents / Starred / Type */
+    .filters{
+        display:none !important;
+    }
+
+    /* Hide New Folder */
+    #newFolderButton{
+        display:none !important;
+    }
+        .controls{
+        width:100%;
+        justify-content:space-between;
+    }
+
+    #uploadButton{
+        margin-left:auto;
     }
 }
 
@@ -1921,4 +2144,645 @@ body.dark-mode .recommendation-card {
     .recommendations-wrapper {
         flex-direction: column;
     }
+}
+
+
+
+
+
+/* =================================================
+   FINAL GOOGLE DRIVE LIST VIEW FIX
+   ONLY LIST VIEW
+================================================= */
+
+
+/* HEADER: Name | Modified | Actions */
+
+.list-view .file-list-header{
+
+    background: transparent !important;
+
+    border-radius:0 !important;
+
+    box-shadow:none !important;
+
+    border-bottom:1px solid rgba(148,163,184,.25) !important;
+
+    padding:12px 10px !important;
+
+}
+
+
+
+/* REMOVE CARD EFFECT FROM ROW */
+
+.list-view .file-item{
+
+    margin:0 !important;
+
+    padding:0 !important;
+
+    border-radius:0 !important;
+
+}
+
+
+
+
+.list-view .file-box{
+
+
+    display:grid !important;
+
+
+    grid-template-columns:50px minmax(0,1fr) auto !important;
+
+
+    grid-template-areas:
+
+    "icon info actions";
+
+
+    align-items:center !important;
+
+
+    gap:14px !important;
+
+
+    height:70px !important;
+
+
+    padding:10px 12px !important;
+
+
+    background:transparent !important;
+
+
+    border:none !important;
+
+
+    border-radius:0 !important;
+
+
+    box-shadow:none !important;
+
+
+}
+
+
+
+
+/* separator between files */
+
+.list-view .file-item:not(:last-child){
+
+
+border-bottom:1px solid rgba(148,163,184,.20);
+
+
+}
+
+
+
+/* ICON */
+
+.list-view .file-preview-area,
+.list-view .file-icon-box{
+
+
+grid-area:icon;
+
+
+width:44px !important;
+
+
+height:44px !important;
+
+
+border-radius:12px !important;
+
+
+background:#f1f5f9 !important;
+
+
+display:flex !important;
+
+
+align-items:center !important;
+
+
+justify-content:center !important;
+
+
+overflow:hidden;
+
+
+}
+
+
+
+
+
+.list-view .file-preview-thumb{
+
+
+width:44px !important;
+
+
+height:44px !important;
+
+
+object-fit:cover;
+
+
+border-radius:12px;
+
+
+}
+
+
+
+
+
+/* FILE DETAILS */
+
+.list-view .file-info{
+
+
+grid-area:info;
+
+
+display:flex !important;
+
+
+flex-direction:column;
+
+
+justify-content:center;
+
+
+gap:3px;
+
+
+min-width:0;
+
+
+padding:0 !important;
+
+
+}
+
+
+
+
+
+.list-view .file-name-label{
+
+
+font-size:15px;
+
+
+font-weight:500;
+
+
+white-space:nowrap;
+
+
+overflow:hidden;
+
+
+text-overflow:ellipsis;
+
+
+}
+
+
+
+
+
+.list-view .file-info small{
+
+
+font-size:13px;
+
+
+color:#94a3b8;
+
+
+}
+
+
+
+
+
+/* ACTION AREA */
+
+.list-view .file-card-footer{
+
+
+grid-area:actions;
+
+
+display:flex !important;
+
+
+align-items:center;
+
+
+gap:5px;
+
+
+margin:0 !important;
+
+
+}
+
+
+
+
+/* ACTION BUTTONS */
+
+.list-view .file-card-footer button{
+
+
+width:30px;
+
+
+height:30px;
+
+
+border-radius:50%;
+
+
+background:transparent;
+
+
+border:none;
+
+
+display:flex;
+
+
+align-items:center;
+
+
+justify-content:center;
+
+
+color:#64748b;
+
+
+}
+
+
+
+
+
+.list-view .file-card-footer button:hover{
+
+
+background:#e2e8f0;
+
+
+color:#2563eb;
+
+
+}
+
+
+
+
+
+/* REMOVE OLD THREE DOT */
+
+.list-view .dropdown{
+
+
+display:none !important;
+
+
+}
+
+
+
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+
+.list-view .file-box{
+
+
+height:65px !important;
+
+
+grid-template-columns:45px minmax(0,1fr) auto !important;
+
+
+padding:8px !important;
+
+
+}
+
+
+
+.list-view .file-preview-area,
+.list-view .file-icon-box{
+
+
+width:40px !important;
+
+
+height:40px !important;
+
+
+}
+
+
+
+.list-view .file-preview-thumb{
+
+
+width:40px !important;
+
+
+height:40px !important;
+
+
+}
+
+
+
+.list-view .file-card-footer button{
+
+
+width:27px;
+
+
+height:27px;
+
+
+}
+
+
+}
+/* ==================================
+   MOBILE SCAN FLOATING BUTTON
+   GOOGLE DRIVE STYLE
+================================== */
+
+
+.scan-btn{
+
+
+display:none;
+
+
+}
+
+
+
+
+
+@media(max-width:768px){
+
+
+.scan-btn{
+
+
+display:flex;
+
+
+position:fixed;
+
+
+right:25px;
+
+
+bottom:90px;
+
+
+width:70px;
+
+
+height:70px;
+
+
+border-radius:22px;
+
+
+border:none;
+
+
+background:#5b4b8a;
+
+
+color:white;
+
+
+align-items:center;
+
+
+justify-content:center;
+
+
+font-size:32px;
+
+
+z-index:9998;
+
+
+box-shadow:0 10px 25px rgba(0,0,0,.25);
+
+
+cursor:pointer;
+
+
+transition:.25s ease;
+
+
+}
+
+
+.scan-btn:hover{
+
+transform:translateY(-5px);
+}
+
+.scan-btn:active{
+
+
+transform:scale(.95);
+
+
+}
+
+
+}
+
+/* ==========================
+   SCAN FLOATING BUTTON
+========================== */
+
+
+.scan-btn{
+
+
+display:none;
+
+
+}
+
+
+
+
+@media(max-width:768px){
+
+
+.scan-btn{
+
+
+display:flex;
+
+
+position:fixed;
+
+
+right:25px;
+
+
+bottom:90px;
+
+
+width:65px;
+
+
+height:65px;
+
+
+border-radius:20px;
+
+
+border:none;
+
+
+background:#2563eb;
+
+
+color:white;
+
+
+font-size:30px;
+
+
+align-items:center;
+
+
+justify-content:center;
+
+
+z-index:9998;
+
+
+box-shadow:0 10px 25px rgba(0,0,0,.25);
+
+
+transition:.3s ease;
+
+
+}
+
+
+
+.scan-btn:hover{
+
+
+transform:translateY(-5px);
+
+
+}
+
+
+}
+
+
+
+
+
+
+/* ==========================
+       TOAST MESSAGE
+========================== */
+
+
+.toast-message{
+
+
+position:fixed;
+
+
+bottom:90px;
+
+
+left:20px;
+
+
+
+background:#1f2937;
+
+
+color:white;
+
+
+
+padding:12px 20px;
+
+
+
+border-radius:12px;
+
+
+
+font-size:14px;
+
+
+
+opacity:0;
+
+
+visibility:hidden;
+
+
+
+transform:translateX(-120%);
+
+
+
+transition:.35s ease;
+
+
+
+z-index:10000;
+
+
+
+box-shadow:0 10px 25px rgba(0,0,0,.2);
+
+
+
+}
+
+.toast-message.show{
+
+
+opacity:1;
+
+
+visibility:visible;
+
+
+transform:translateX(0);
+
+
 }

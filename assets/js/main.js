@@ -297,27 +297,22 @@ document.addEventListener('DOMContentLoaded', function () {
     // =========================
     // FILE MENU TOGGLE
     // =========================
-    document.querySelectorAll('.menu-btn').forEach(btn => {
 
-        btn.addEventListener('click', function (e) {
+document.addEventListener("DOMContentLoaded", () => {
 
-            e.stopPropagation();
+    const menuBtn = document.getElementById("mobileMenuBtn");
+    const sidebar = document.querySelector(".sidebar");
 
-            document.querySelectorAll('.file-menu').forEach(menu => {
+    if(menuBtn && sidebar){
 
-                if (menu !== this.parentElement) {
-
-                    menu.classList.remove('active');
-
-                }
-
-            });
-
-            this.parentElement.classList.toggle('active');
-
+        menuBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("show");
         });
 
-    });
+    }
+
+});
+
 
     document.addEventListener('click', () => {
 
@@ -764,3 +759,113 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+
+
+
+function scanUnavailable(){
+    alert("This feature is unavailable for now");
+}
+
+
+// VIEW SWITCH
+
+const container = document.getElementById("fileContainer");
+
+const gridBtn = document.getElementById("gridViewBtn");
+const listBtn = document.getElementById("listViewBtn");
+const largeGridBtn = document.getElementById("largeGridViewBtn");
+
+
+if(gridBtn){
+
+gridBtn.onclick = ()=>{
+
+container.className =
+"row g-4 file-container grid-view";
+
+document.querySelectorAll(".file-item")
+.forEach(item=>{
+
+item.className =
+"file-item col-xl-3 col-lg-4 col-md-6 col-12";
+
+});
+}
+}
+
+
+if(largeGridBtn){
+
+largeGridBtn.onclick = ()=>{
+
+
+container.className =
+"row g-4 file-container large-grid-view";
+
+
+document.querySelectorAll(".file-item")
+.forEach(item=>{
+
+item.className =
+"file-item col-xl-4 col-lg-6 col-12";
+
+});
+
+
+}
+
+}
+
+
+
+
+if(listBtn){
+
+listBtn.onclick = ()=>{
+
+
+container.className =
+"file-container list-view";
+
+
+document.querySelectorAll(".file-item")
+.forEach(item=>{
+
+item.className =
+"file-item list-item";
+
+
+});
+
+
+}
+
+
+}
+
+
+/*/toast notification*/
+
+function scanUnavailable(){
+
+
+    let toast = document.getElementById("toastMessage");
+
+
+    toast.classList.add("show");
+
+
+
+    setTimeout(()=>{
+
+
+        toast.classList.remove("show");
+
+
+    },2000);
+
+
+
+}
+

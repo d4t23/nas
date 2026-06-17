@@ -19,7 +19,7 @@ elseif ($currentPath === 'backups') $activeMenu = 'reports';
 elseif ($currentPath === 'computers') $activeMenu = 'devices';
 ?>
 
-<aside class="sidebar" id="modernSidebar">
+<aside class="sidebar" id="sidebar">
     <!-- Sidebar Header -->
     <div class="sidebar-header">
         <a href="dashboard_new.php" class="sidebar-logo">
@@ -109,10 +109,10 @@ elseif ($currentPath === 'computers') $activeMenu = 'devices';
         </li>
 
         <li class="sidebar-menu-item <?= $activeMenu === 'devices' ? 'active' : '' ?>">
-            <a href="computers.php" class="sidebar-link <?= $activeMenu === 'devices' ? 'active' : '' ?>">
-                <i class='bx bx-desktop'></i>
-                <span class="sidebar-link-label">Devices</span>
-                <span class="sidebar-tooltip">Devices</span>
+            <a href="recycle_bin.php" class="sidebar-link <?= $activeMenu === 'devices' ? 'active' : '' ?>">
+                <i class='bx bx-trash'></i>
+                <span class="sidebar-link-label">Trash</span>
+                <span class="sidebar-tooltip">Trash</span>
             </a>
         </li>
 
@@ -376,4 +376,47 @@ elseif ($currentPath === 'computers') $activeMenu = 'devices';
         // Open help center modal or redirect to help page
         alert('Help Center coming soon!');
     }
+
+    /*sidebar toggle for mobile*/
+document.addEventListener("DOMContentLoaded", function () {
+
+    const toggleBtn = document.getElementById("sidebarToggleBtn");
+    const sidebar = document.querySelector(".sidebar");
+
+    if(toggleBtn && sidebar){
+
+        toggleBtn.addEventListener("click", function(){
+
+            sidebar.classList.toggle("show");
+
+        });
+
+    }
+
+});
+/*close sidebar when clicking outside on mobile*/
+document.addEventListener("DOMContentLoaded", function () {
+
+    const sidebar = document.getElementById("sidebar");
+    const toggleBtn = document.getElementById("sidebarToggle");
+
+    toggleBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        sidebar.classList.toggle("show");
+    });
+
+    document.addEventListener("click", function (e) {
+
+        if (
+            !sidebar.contains(e.target) &&
+            !toggleBtn.contains(e.target)
+        ) {
+            sidebar.classList.remove("show");
+        }
+
+    });
+
+});
+
+
 </script>
